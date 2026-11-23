@@ -1,0 +1,33 @@
+
+> POST /signup {"name": "Acme Client", "email": "client@acme.com", "password": "password123", "role": "client"}
+< 201 {"data": {"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwicm9sZSI6ImNsaWVudCIsImV4cCI6MTc5NTQ3NTYwNX0.JbMbYE8jPYwKfJUZvQNhBmDDe_u1XAbktz_QfMtIW8c", "user": {"bio": null, "created_at": "2026-11-23T22:13:25.615431", "email": "client@acme.com", "id": 1, "name": "Acme Client", "profile_im...
+
+> POST /signup {"name": "Jane Dev", "email": "jane@dev.io", "password": "password123", "role": "freelancer", "skills": ["python", "flask"]}
+< 201 {"data": {"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwicm9sZSI6ImZyZWVsYW5jZXIiLCJleHAiOjE3OTU0NzU2MDV9.pL4yGa8fVquPjSEqfztMEWakAEqI9FW0qEFsB7WBYpQ", "user": {"bio": null, "created_at": "2026-11-23T22:13:25.918541", "email": "jane@dev.io", "id": 2, "name": "Jane Dev", "profile_imag...
+
+> POST /projects {"title": "REST API for a bakery", "category": "backend", "budget": 800, "description": "Need a Flask REST API with JWT auth for orders.", "required_skills": ["
+< 201 {"data": {"budget": 800.0, "category": "backend", "client_id": 1, "created_at": "2026-11-23T22:13:25.923384", "deadline": "2026-12-14", "description": "Need a Flask REST API with JWT auth for orders.", "experience_level": "intermediate", "freelancer_id": null, "id": 1, "required_skills": ["python", ...
+
+> GET /projects?search=flask 
+< 200 {"data": [{"budget": 800.0, "category": "backend", "client_id": 1, "created_at": "2026-11-23T22:13:25.923384", "deadline": "2026-12-14", "description": "Need a Flask REST API with JWT auth for orders.", "experience_level": "intermediate", "freelancer_id": null, "id": 1, "required_skills": ["python",...
+
+> POST /projects/1/proposal {"bid_amount": 700, "cover_letter": "I have built several Flask APIs and can deliver in two weeks.", "delivery_time": 14}
+< 201 {"data": {"bid_amount": 700.0, "cover_letter": "I have built several Flask APIs and can deliver in two weeks.", "delivery_time": 14, "freelancer_id": 2, "freelancer_name": "Jane Dev", "id": 1, "project_id": 1, "status": "pending", "submitted_at": "2026-11-23T22:13:25.935175"}, "success": true}
+
+> POST /projects 
+< 403 {"error": "Access denied for role 'freelancer'. Required: client", "success": false}
+
+> PUT /proposal/1/accept 
+< 200 {"data": {"contract": {"client_id": 1, "completed_at": null, "contract_status": "pending", "freelancer_id": 2, "id": 1, "project_id": 1, "started_at": null}, "project": {"budget": 800.0, "category": "backend", "client_id": 1, "created_at": "2026-11-23T22:13:25.923384", "deadline": "2026-12-14", "des...
+
+> PUT /project/1/start 
+< 200 {"data": {"contract": {"client_id": 1, "completed_at": null, "contract_status": "active", "freelancer_id": 2, "id": 1, "project_id": 1, "started_at": "2026-11-23T22:13:25.947974"}, "project": {"budget": 800.0, "category": "backend", "client_id": 1, "created_at": "2026-11-23T22:13:25.923384", "deadli...
+
+> PUT /project/1/complete 
+< 200 {"data": {"contract": {"client_id": 1, "completed_at": "2026-11-23T22:13:25.951057", "contract_status": "completed", "freelancer_id": 2, "id": 1, "project_id": 1, "started_at": "2026-11-23T22:13:25.947974"}, "project": {"budget": 800.0, "category": "backend", "client_id": 1, "created_at": "2026-11-2...
+
+> GET /client/dashboard 
+< 200 {"data": {"active_projects": 0, "cancelled_projects": 0, "completed_projects": 1, "open_projects": 0, "total_projects": 1, "total_proposals_received": 1}, "success": true}
+
+> GET /freelancer/dashboard 
+< 200 {"data": {"accepted_proposals": 1, "active_projects": 0, "applied_projects": 1, "completed_projects": 1, "total_earnings": 700.0}, "success": true}

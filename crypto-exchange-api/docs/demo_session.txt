@@ -1,0 +1,45 @@
+
+> POST /signup {"name": "Trader One", "email": "trader@mail.com", "password": "password123"}
+< 201 {"data": {"note": "Mock email verification: POST /verify-email with this token", "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwicm9sZSI6InVzZXIiLCJleHAiOjE3OTU0NzU3NjJ9.JPr4IbfgqLo5_jVuTg8RSa9T6iRZK1s1fv3uq11jLr4", "user": {"created_at": "2026-11-23T22:16:02.435240", "email": "trader@mail.com", "email_verified": ...
+
+> POST /wallet/create {"coin": "USDT"}
+< 403 {"error": "Verify your email address first (POST /verify-email)", "success": false}
+
+> POST /verify-email {"token": "vS3psbPXFcHU1yS0DRFde3MIG9k029TT"}
+< 200 {"data": {"created_at": "2026-11-23T22:16:02.435240", "email": "trader@mail.com", "email_verified": true, "id": 2, "name": "Trader One", "role": "user", "status": "active"}, "success": true}
+
+> POST /wallet/create {"coin": "USDT"}
+< 201 {"data": {"available_balance": 0.0, "coin_name": "Tether", "coin_symbol": "USDT", "created_at": "2026-11-23T22:16:02.447302", "id": 1, "locked_balance": 0.0, "user_id": 2, "wallet_address": "0x59a72304bbd789982ba92e3875d0248494978f5d"}, "success": true}
+
+> POST /wallet/deposit {"coin": "USDT", "amount": 10000}
+< 200 {"data": {"wallet": {"available_balance": 10000.0, "coin_name": "Tether", "coin_symbol": "USDT", "created_at": "2026-11-23T22:16:02.447302", "id": 1, "locked_balance": 0.0, "user_id": 2, "wallet_address": "0x59a72304bbd789982ba92e3875d0248494978f5d"}}, "success": true}
+
+> POST /trade/buy {"coin": "BTC", "quantity": 0.1}
+< 201 {"data": {"trade": {"coin": "BTC", "created_at": "2026-11-23T22:16:02.455801", "id": 1, "price": 65000.0, "quantity": 0.1, "total_amount": 6500.0, "trade_type": "buy", "user_id": 2}, "wallets": [{"available_balance": 3500.0, "coin_name": "Tether", "coin_symbol": "USDT", "created_at": "2026-11-23T22:16:02.447302", "id": 1, "locke...
+
+> POST /trade/buy {"coin": "ETH", "quantity": 100}
+< 400 {"error": "Insufficient USDT: need 320000.0, available 3500.0", "success": false}
+
+> POST /wallet/withdraw {"coin": "USDT", "amount": 99999}
+< 400 {"error": "Insufficient available balance (3500.0 USDT)", "success": false}
+
+> POST /login {"email": "admin@exchange.local", "password": "AdminPass123"}
+< 200 {"data": {"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzk1NDc1NzYyfQ.LkhEAvfGvrT1CvuJmmppoWV4wUYGzu-UX7TDQ77lj3Y", "user": {"created_at": "2026-11-23T22:16:02.127978", "email": "admin@exchange.local", "email_verified": true, "id": 1, "name": "Administrator", "role": "admin", "status...
+
+> PUT /admin/coins/1 {"current_price": 70000}
+< 200 {"data": {"coin_name": "Bitcoin", "coin_symbol": "BTC", "current_price": 70000.0, "id": 1, "status": "active"}, "success": true}
+
+> GET /portfolio 
+< 200 {"data": {"holdings": [{"coin": "USDT", "price": 1.0, "quantity": 3500.0, "value_usdt": 3500.0}, {"avg_buy_price": 65000.0, "coin": "BTC", "cost_basis_usdt": 6500.0, "price": 70000.0, "quantity": 0.1, "traded_quantity": 0.1, "unrealized_pl_pct": 7.69, "unrealized_pl_usdt": 500.0, "value_usdt": 7000.0}], "investment_history": [{"...
+
+> POST /trade/sell {"coin": "BTC", "quantity": 0.05}
+< 201 {"data": {"trade": {"coin": "BTC", "created_at": "2026-11-23T22:16:02.796100", "id": 2, "price": 70000.0, "quantity": 0.05, "total_amount": 3500.0, "trade_type": "sell", "user_id": 2}, "wallets": [{"available_balance": 7000.0, "coin_name": "Tether", "coin_symbol": "USDT", "created_at": "2026-11-23T22:16:02.447302", "id": 1, "loc...
+
+> GET /transactions?type=sell 
+< 200 {"data": [{"amount": 0.05, "coin_symbol": "BTC", "id": 5, "status": "completed", "timestamp": "2026-11-23T22:16:02.796376", "transaction_type": "sell", "user_id": 2, "wallet_id": 2}, {"amount": 6500.0, "coin_symbol": "USDT", "id": 3, "status": "completed", "timestamp": "2026-11-23T22:16:02.456419", "transaction_type": "sell", "u...
+
+> GET /admin/users 
+< 403 {"error": "Access denied for role 'user'. Required: admin", "success": false}
+
+> GET /admin/analytics 
+< 200 {"data": {"blocked_users": 0, "new_users_today": 2, "trade_volume_24h_usdt": 10000.0, "trade_volume_usdt": 10000.0, "trades": 2, "trades_by_coin": [{"coin": "BTC", "trades": 2, "volume_usdt": 10000.0}], "transactions": 6, "transactions_by_type": {"buy": 2, "deposit": 1, "sell": 2, "withdraw": 1}, "users": 1, "wallets": 2}, "succ...
